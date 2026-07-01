@@ -1623,7 +1623,13 @@ async function chikiSpend(amountChiki,label,split){
   const PK=s=>new w3.PublicKey(s);
   const conn=new w3.Connection(CHAIN.RPC,"confirmed");
   const owner=PK(player.pk),mint=PK(CHAIN.MINT),treas=PK(CHAIN.TREASURY),team=PK(CHAIN.TEAM);
-  const TOKEN=PK("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");   /* $CHIKI is a Token-2022 mint */
+  /* 🔑 $CHIKI is a pump.fun token → it lives on the CLASSIC SPL Token program, NOT Token-2022.
+     Hardcoding Token-2022 derived the WRONG token-account address (one that doesn't exist), so every
+     on-chain spend failed with "account not found" even for funded wallets. Detect the mint's REAL
+     owner program and use that for ATA derivation + burn/transfer — correct for either token program. */
+  const TOKEN_CLASSIC=PK("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+  let TOKEN=TOKEN_CLASSIC;
+  try{ const _mi=await conn.getAccountInfo(mint); if(_mi&&_mi.owner)TOKEN=_mi.owner; }catch(_e){}
   const ATAP=PK("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
   const SYS=w3.SystemProgram.programId;
   const dec=await chikiDecimals();
@@ -2593,9 +2599,10 @@ async function refreshChainBalances(){
     const conn=new w3.Connection(CHAIN.RPC,"confirmed");
     const owner=new w3.PublicKey(player.pk);
     const lam=await conn.getBalance(owner); player._chainSol=+(lam/1e9).toFixed(4);
-    const TOKEN=new w3.PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
-    const ATAP=new w3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
     const mint=new w3.PublicKey(CHAIN.MINT);
+    let TOKEN=new w3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");   /* classic SPL (pump.fun); detect real owner below */
+    try{ const _mi=await conn.getAccountInfo(mint); if(_mi&&_mi.owner)TOKEN=_mi.owner; }catch(e){}
+    const ATAP=new w3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
     const ata=w3.PublicKey.findProgramAddressSync([owner.toBuffer(),TOKEN.toBuffer(),mint.toBuffer()],ATAP)[0];
     try{const r=await conn.getTokenAccountBalance(ata); if(r&&r.value&&r.value.uiAmount!=null)player.bal=Math.floor(r.value.uiAmount);}catch(e){}
     try{if(CHAIN.BACKEND){const er=await fetch(CHAIN.BACKEND+"/claimable?wallet="+player.pk,{cache:"no-store"});const ej=await er.json();if(ej){
