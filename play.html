@@ -935,16 +935,80 @@ if(location.search.indexOf("embed")>-1){
 #aTimerBox .tv{position:absolute;left:60%;top:49%;transform:translate(-50%,-50%);font-weight:800;font-size:22px;color:#ffe9b0;letter-spacing:1px;text-shadow:0 1px 3px #000,0 0 9px rgba(255,200,80,.55);white-space:nowrap}
 #aTimerBox.low .tv{color:#ff8a8a}
 .aMatch2{display:none}   /* matchup/element now lives in the top-center info panel */
-#pvpLobby{background:rgba(8,14,28,.78);border:1px solid #2c4470;border-radius:13px;padding:11px 13px;margin:0 0 13px}
-#pvpLobby .lobHd{font-weight:800;font-size:14px;color:#cfe0ff;margin-bottom:7px;display:flex;align-items:center;gap:7px}
-#pvpLobby .lobN{background:#1f7bd6;color:#fff;font-size:11px;border-radius:999px;padding:1px 8px}
-#pvpLobby .lobRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #1c2c48;font-size:13px;color:#e7eefb;font-weight:700}
-#pvpLobby .lobRow.chal{color:#ffd166}
-#pvpLobby .lobEmpty{font-size:12.5px;color:#8fa6c9;line-height:1.5;padding:4px 0}
-#pvpLobby .lobBtn{font-family:inherit;font-weight:800;font-size:12px;padding:7px 12px;border:none;border-radius:9px;cursor:pointer;background:linear-gradient(180deg,#5aa9ff,#1f7bd6);color:#fff}
-#pvpLobby .lobBtn.acc{background:linear-gradient(180deg,#5fe08a,#28a55a)}
+/* ===== Chikiseum HUB HUD — trainer status bar, battle lobby & wager rail ===== */
+#hubHud{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:linear-gradient(180deg,rgba(22,32,58,.92),rgba(11,17,36,.92));
+  border:1px solid #2c4470;border-radius:14px;padding:10px 12px;margin:0 0 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+#hubHud .hhWho{display:flex;align-items:center;gap:9px;min-width:0;flex:1 1 190px}
+#hubHud .hhOrb{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 auto;
+  border:1px solid rgba(255,255,255,.14)}
+#hubHud .hhName{font-weight:900;font-size:14.5px;color:#eaf2ff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hubHud .hhSub{font-size:11.5px;color:#93a8c9;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hubHud .hhStats{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;flex:1 1 auto}
+.hhPill{display:inline-flex;align-items:center;gap:5px;background:rgba(6,11,24,.72);border:1px solid #2c4470;border-radius:999px;
+  padding:5px 11px;font-size:12.5px;font-weight:800;color:#cfe0ff;white-space:nowrap}
+.hhPill b{color:#ffe27a}
+.hhPill.glory b{color:#ffe27a}
+.hhPill.win b{color:#3ddc84}
+.hhPill.loss b{color:#ff9a9a}
+.hhPill.streak{border-color:#7a5a1e;background:rgba(60,42,8,.5)}
+.hhPill.live{border-color:#1f7a48;background:rgba(10,44,26,.6)}
+.hhPill.live b{color:#3ddc84}
+.hhStam{flex:1 1 100%;display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700;color:#93a8c9}
+.hhStam .bar{flex:1;height:8px;border-radius:5px;background:#0a1020;border:1px solid #26375a;overflow:hidden;min-width:90px}
+.hhStam .bar i{display:block;height:100%;background:linear-gradient(90deg,#ffd166,#ffb15a);border-radius:4px;transition:width .3s}
+.hhStam .bar i.low{background:linear-gradient(90deg,#ff8a8a,#e03131)}
+.hhStam .bar i.rest{background:linear-gradient(90deg,#b197fc,#7a5af0)}
+
+#pvpLobby{background:linear-gradient(180deg,rgba(12,20,40,.94),rgba(8,14,28,.94));border:1px solid #2c4470;border-radius:15px;
+  padding:0;margin:0 0 13px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.32)}
+#pvpLobby .lobHd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:900;font-size:14px;color:#eaf2ff;
+  padding:11px 13px;background:linear-gradient(180deg,rgba(40,60,102,.55),rgba(20,30,56,.3));border-bottom:1px solid #22355a}
+#pvpLobby .lobN{background:linear-gradient(180deg,#5aa9ff,#1f7bd6);color:#fff;font-size:11px;font-weight:900;border-radius:999px;padding:2px 9px}
+#pvpLobby .lobDot{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;animation:lobPulse 1.8s ease-in-out infinite}
+@keyframes lobPulse{0%,100%{opacity:1}50%{opacity:.35}}
+#pvpLobby .lobBody{padding:9px 13px 12px}
+
+/* wager rail */
+#pvpLobby .wagRail{border:1px solid #3a3016;background:linear-gradient(180deg,rgba(50,40,12,.5),rgba(26,20,6,.4));border-radius:12px;padding:9px 11px;margin-bottom:10px}
+#pvpLobby .wagHd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:800;color:#ffe27a;margin-bottom:8px}
+#pvpLobby .wagHd small{color:#b9a25f;font-weight:700;font-size:11px}
+#pvpLobby .wagRow{display:flex;gap:6px;flex-wrap:wrap}
+#pvpLobby .wagBtn{font-family:inherit;font-weight:900;font-size:12px;padding:7px 12px;border-radius:9px;cursor:pointer;
+  background:rgba(8,14,28,.8);color:#cfe0ff;border:1px solid #2c4470;transition:transform .12s,background .15s}
+#pvpLobby .wagBtn:hover:not(:disabled){transform:translateY(-1px);background:#1a2c4a}
+#pvpLobby .wagBtn.on{background:linear-gradient(180deg,#ffe27a,#e0a800);color:#3a2a06;border-color:#b98a2e;box-shadow:0 2px 0 #a87c00}
+#pvpLobby .wagBtn:disabled{opacity:.35;cursor:not-allowed}
+#pvpLobby .wagNote{font-size:11.5px;color:#9fb3d6;margin-top:7px;line-height:1.5}
+
+/* trainer rows */
+#pvpLobby .lobRow{display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid #1c2c48;font-size:13px;color:#e7eefb;font-weight:700}
+#pvpLobby .lobRow:first-child{border-top:none}
+#pvpLobby .lobRow.chal{background:linear-gradient(90deg,rgba(60,46,8,.5),transparent);border-radius:10px;padding:8px;border-top:none;margin-bottom:4px;
+  box-shadow:inset 0 0 0 1px #6b5410}
+#pvpLobby .lobOrb{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 auto}
+#pvpLobby .lobWho{flex:1;min-width:0}
+#pvpLobby .lobNm{font-weight:800;font-size:13px;color:#eaf2ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pvpLobby .lobMeta{font-size:11px;color:#8fa6c9;font-weight:700}
+#pvpLobby .lobMeta .stk{color:#ffe27a}
+#pvpLobby .lobMeta .sea{color:#ffd166}
+#pvpLobby .lobEmpty{font-size:12.5px;color:#8fa6c9;line-height:1.55;padding:10px 2px;text-align:center}
+#pvpLobby .lobBtn{font-family:inherit;font-weight:800;font-size:12px;padding:7px 12px;border:none;border-radius:9px;cursor:pointer;
+  background:linear-gradient(180deg,#5aa9ff,#1f7bd6);color:#fff;flex:0 0 auto;transition:transform .12s}
+#pvpLobby .lobBtn:hover:not(:disabled){transform:translateY(-1px)}
+#pvpLobby .lobBtn.acc{background:linear-gradient(180deg,#5fe08a,#28a55a);color:#04220f}
 #pvpLobby .lobBtn.dec{background:rgba(40,20,20,.8);color:#ff9a9a;padding:7px 10px}
-#pvpLobby .lobBtn.sent,#pvpLobby .lobBtn:disabled{background:#2c4470;color:#9fb3d6;cursor:default}
+#pvpLobby .lobBtn.sent,#pvpLobby .lobBtn:disabled{background:#2c4470;color:#9fb3d6;cursor:default;transform:none}
+#pvpLobby .lobFind{width:100%;margin-top:10px;font-family:inherit;font-weight:900;font-size:15px;padding:12px;border:none;border-radius:12px;cursor:pointer;
+  background:linear-gradient(180deg,#ffd166,#e0a800);color:#3a2a06;box-shadow:0 4px 0 #a87c00;transition:transform .12s}
+#pvpLobby .lobFind:hover{transform:translateY(-1px)}
+#pvpLobby .lobFind:active{transform:translateY(3px);box-shadow:0 1px 0 #a87c00}
+@media(max-width:620px){
+  #hubHud{padding:9px 10px;gap:8px}
+  #hubHud .hhStats{justify-content:flex-start;flex-basis:100%}
+  #pvpLobby .lobHd{font-size:13px;padding:10px}
+  #pvpLobby .lobBody{padding:8px 10px 11px}
+  #pvpLobby .wagBtn{flex:1 1 auto;min-width:62px}
+}
 /* stage + fighters */
 #arenaStage{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;background:none;border-radius:0;margin:0;box-shadow:none;z-index:1}
 .aFighter{position:absolute;bottom:30%;width:auto;gap:6px}
@@ -1025,6 +1089,7 @@ if(location.search.indexOf("embed")>-1){
   <div id="arenaZoom"></div>
   <div id="arenaIntro">
     <div id="hubChampBanner" style="display:none"></div>
+    <div id="hubHud" style="display:none"></div>
     <div id="pvpLobby" style="display:none"></div>
     <div class="aiTabs">
       <button class="aiTab on" data-ai="cards">🃏 My Deck</button>
@@ -1058,6 +1123,7 @@ if(location.search.indexOf("embed")>-1){
       <div class="aiBlock glory"><h4>✨ Earn Glory</h4>Win a battle for <b>+(6 + 2 × opponent BR)</b> Glory, plus Battle EXP. Even a loss earns a little EXP — every fight is progress.</div>
       <div class="aiBlock glory"><h4>✨ Spend Glory</h4>Mint new skill cards from <b>150 ✨</b> (cost rises as your deck grows). Master cards: Tier 3→4 <b>120 ✨</b> · Tier 4→5 <b>300 ✨</b>.</div>
       <div class="aiBlock"><h4>🪙 $CHIKI costs</h4>Mint a card <b>25,000 $CHIKI</b> · Tier 4→5 mastery <b>50,000 $CHIKI</b> · feeding restores stamina. Every spend: <b>1% burned</b> · 49.5% reward pool · 49.5% team.</div>
+      <div class="aiBlock glory"><h4>💰 Wager your Glory</h4>Set a stake in the lobby (<b>25 → 500 ✨</b>) before you fight. A match is played for the <b>lower</b> of the two stakes, so you can never be out-staked. Both are held in <b>escrow</b> until it ends and the <b>winner takes the pot</b> — <b>5%</b> of it funds the Chikoria Cup prize pool. Forfeit or disconnect and your opponent takes the stake.</div>
       <div class="aiBlock"><h4>🔮 Mystic Market</h4>Hatch Legendary Eggs and acquire skill cards at Mithra's Mystic Market.</div>
     </div>
     <div class="aiPane" data-aip="cup">
@@ -1603,6 +1669,15 @@ const CHAIN={
   ONCHAIN_SPENDS:true,           /* true = spends (feed/level/eggs) are REAL on-chain $CHIKI tx. Default split 1% burn / 49.5% pool / 49.5% team (eggs & reroll use their own splits below). false = simulated */
   ADMINS:["CmY2ZXVPVG2gbAHeVWHw7PQrAKtTcrWsq2raaWgg8YJ9"]   /* wallets that can PIN / post official chat updates (add your own here) */
 };
+/* Per-session backend override so you can point the game at a local or staging
+   server without editing this file: play.html?backend=http://localhost:3000
+   (…?backend=reset clears it again). */
+try{
+  const _qb=new URLSearchParams(location.search).get("backend");
+  if(_qb==="reset")localStorage.removeItem("chikiBackend");
+  else if(_qb){ CHAIN.BACKEND=_qb.replace(/\/+$/,""); localStorage.setItem("chikiBackend",CHAIN.BACKEND); }
+  else { const _sb=localStorage.getItem("chikiBackend"); if(_sb)CHAIN.BACKEND=_sb; }
+}catch(e){}
 window.CHAIN=CHAIN;   /* expose on window — top-level `const` doesn't attach to window, and the Meme Dex reads window.CHAIN */
 /* ===== Real on-chain $CHIKI spend (player signs in Phantom). Split in BASIS POINTS via the `split` arg;
    DEFAULT = 1% burn / 49.5% treasury(pool) / 49.5% team. Legendary Egg = 1%/40%/59% (EGG_SPLIT).
@@ -3569,18 +3644,19 @@ setInterval(updateWhaleTab,1000);
     const stop=()=>{ cancelled=true; _pvpSearching=false; try{fetch(CHAIN.BACKEND+"/pvp/cancel",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk})});}catch(e){} };
     ac.innerHTML=`<div style="font-size:14px;color:#cdd8ee">🔎 Searching for a live opponent…</div>
       <div id="pvpOnline" style="font-size:12.5px;color:#3ddc84;font-weight:700;margin-top:4px">🟢 checking who's online…</div>
+      ${_pvpWager?`<div style="font-size:12.5px;color:#ffe27a;font-weight:800;margin-top:4px">💰 Staking <b>${_pvpWager} ✨ Glory</b> — matched on the lower of the two stakes</div>`:""}
       <div style="margin-top:8px"><button class="aBtn" id="pvpCancel">Cancel</button> <button class="aBtn" id="pvpAi">⚔️ Battle a rival</button></div>`;
     const cb=g("pvpCancel"); if(cb)cb.onclick=()=>{ stop(); ac.innerHTML='<button class="aBtn" id="pvpRetry">⚔️ Find a Match</button>'; const rt=g("pvpRetry"); if(rt)rt.onclick=findMatch; };
     const ab=g("pvpAi"); if(ab)ab.onclick=()=>{ stop(); startBattle(); renderArenaMeta(); };
     const poll=async()=>{ if(cancelled)return;
       try{
-        let r=await fetch(CHAIN.BACKEND+"/pvp/available",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,name:(player.handle||player.addr||"Trainer"),snap,searching:true})});
+        let r=await fetch(CHAIN.BACKEND+"/pvp/available",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,name:(player.handle||player.addr||"Trainer"),snap,searching:true,wager:_pvpWager})});
         if(r.ok){ const j=await r.json(); if(cancelled)return;
           if(j&&j.matched){ _pvpSearching=false; startPvp(j.matched.matchId,j.matched.side); return; }
           const on=g("pvpOnline"); if(on){ const ps=(j&&j.players)||[]; const others=ps.length, searchers=ps.filter(p=>p.searching).length;
             on.innerHTML=others?("🟢 <b>"+others+"</b> Trainer"+(others===1?"":"s")+" in the Chikiseum"+(searchers?" · <b>"+searchers+"</b> also searching ⚔️":" — challenge them or wait")):"🔎 Waiting for another Trainer to enter the Chikiseum…"; }
         } else {   /* older backend without /pvp/available → fall back to the classic queue (always pairs two searchers) */
-          const r2=await fetch(CHAIN.BACKEND+"/pvp/queue",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,snap})});
+          const r2=await fetch(CHAIN.BACKEND+"/pvp/queue",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,snap,wager:_pvpWager})});
           const j2=await r2.json(); if(cancelled)return; if(j2&&j2.status==="matched"){ _pvpSearching=false; startPvp(j2.matchId,j2.side); return; }
           const on=g("pvpOnline"); if(on&&j2){ const e=j2.eligible|0,q=j2.queued|0; on.innerHTML="🟢 <b>"+e+"</b> eligible online"+(q>1?" · <b>"+q+"</b> searching ⚔️":" · waiting for an opponent…"); }
         }
@@ -3589,40 +3665,158 @@ setInterval(updateWhaleTab,1000);
     };
     poll();
   }
-  /* ===== "Trainers ready to battle" lobby — see who's available & challenge them directly ===== */
-  let _lobbyChallenged={}, _pvpSearching=false;
-  function legendSnap(){ const ls=myLegends().map(ensureLegendSkills); if(!ls.length)return null; const c=(typeof activeLegend==="function"&&activeLegend())||ls[0]; return {name:nameOf(c),handle:(player.handle||player.addr||"Trainer"),element:legElem(SPECIES.indexOf(c.sp)),br:c.br||1,arenaSkills:c.arenaSkills||[0,1,2],cardTier:c.cardTier||{}}; }
-  function lobbyActive(){ const ov=g("arenaOverlay"),bx=g("arenaBox"); return !!(ov&&ov.style.display!=="none"&&bx&&bx.classList.contains("introMode")&&!B&&CHAIN.BACKEND&&player&&player.pk); }
+  /* ===== Chikiseum lobby — who's ready to battle, what they're staking, and the
+     wager rail where you set your own stake before finding a match. ===== */
+  let _lobbyChallenged={}, _pvpSearching=false, _lobbyLast=null;
+
+  /* the lobby renders untrusted names from other players — always escape */
+  const escL=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  const ELEM_ICON={Water:"💧",Fire:"🔥",Beast:"🐾",Storm:"⚡",Light:"✨",Chi:"🌀"};
+  const ELEM_COL ={Water:"#4dabf7",Fire:"#ff6b6b",Beast:"#69db7c",Storm:"#b197fc",Light:"#ffd166",Chi:"#9fb3d6"};
+  const elemOrb=(el,cls)=>`<div class="${cls||"lobOrb"}" style="background:${(ELEM_COL[el]||"#888")}22;color:${ELEM_COL[el]||"#888"}">${ELEM_ICON[el]||"●"}</div>`;
+
+  /* ---- wagers: your stake rides on every match you find or accept ---- */
+  let PVP_WAGER_TIERS=[0,25,50,100,250,500], PVP_RAKE_BP=500, _pvpWager=0;
+  try{ const w=localStorage.getItem("chikiPvpWager"); if(w!=null)_pvpWager=Math.max(0,parseInt(w,10)||0); }catch(e){}
+  function setPvpWager(v){
+    _pvpWager=Math.max(0,v|0);
+    try{ localStorage.setItem("chikiPvpWager",String(_pvpWager)); }catch(e){}
+    if(_lobbyLast)pvpLobbyRender(_lobbyLast);
+    if(typeof showBanner==="function")showBanner(_pvpWager?("💰 Stake set to <b>"+_pvpWager+" ✨ Glory</b> — matches are played for the lower of the two stakes."):"🤝 Stake cleared — your next battles are friendlies.","info");
+    pvpLobbyTick();
+  }
+  window.setPvpWager=setPvpWager;
+
+  function legendSnap(){ const ls=myLegends().map(ensureLegendSkills); if(!ls.length)return null; const c=(typeof activeLegend==="function"&&activeLegend())||ls[0]; return {name:nameOf(c),handle:(player.handle||player.addr||"Trainer"),element:legElem(SPECIES.indexOf(c.sp)),br:c.br||1,arenaSkills:c.arenaSkills||[0,1,2],cardTier:c.cardTier||{},uid:c.uid||null}; }
+  /* the hub pop-up is open (HUD is useful here even with no backend) */
+  function hubOpen(){ const ov=g("arenaOverlay"),bx=g("arenaBox"); return !!(ov&&ov.style.display!=="none"&&bx&&bx.classList.contains("introMode")&&!B); }
+  /* …and a live lobby is possible (needs a backend and a connected wallet) */
+  function lobbyActive(){ return !!(hubOpen()&&CHAIN.BACKEND&&player&&player.pk); }
+
   async function pvpLobbyTick(){
-    const panel=g("pvpLobby");
+    const panel=g("pvpLobby"), hud=g("hubHud");
+    if(!hubOpen()){ if(panel)panel.style.display="none"; if(hud)hud.style.display="none"; return; }
+    renderHubHud(_lobbyLast);                       /* status bar shows before any network reply lands */
     if(!lobbyActive()){ if(panel)panel.style.display="none"; return; }
-    const snap=legendSnap(); if(!snap){ if(panel)panel.style.display="none"; return; }
+    const snap=legendSnap();
+    if(!snap){ if(panel)panel.style.display="none"; return; }
     const now=Date.now(); for(const k in _lobbyChallenged) if(now-_lobbyChallenged[k]>28000)delete _lobbyChallenged[k];
     try{
-      const r=await fetch(CHAIN.BACKEND+"/pvp/available",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,name:(player.handle||player.addr||"Trainer"),snap,searching:_pvpSearching})});
+      const r=await fetch(CHAIN.BACKEND+"/pvp/available",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,name:(player.handle||player.addr||"Trainer"),snap,searching:_pvpSearching,wager:_pvpWager})});
       const j=await r.json(); if(!lobbyActive())return;
       if(j&&j.matched){ startPvp(j.matched.matchId,j.matched.side); return; }   /* a challenge you sent was accepted */
-      pvpLobbyRender(j||{});
+      if(j&&Array.isArray(j.tiers)&&j.tiers.length)PVP_WAGER_TIERS=j.tiers;
+      if(j&&j.rakeBp!=null)PVP_RAKE_BP=j.rakeBp;
+      _lobbyLast=j||{};
+      if(j&&j.you&&j.you.glory!=null&&player)player.glory=j.you.glory;   /* Glory is server-authoritative */
+      renderHubHud(_lobbyLast);
+      pvpLobbyRender(_lobbyLast);
     }catch(e){}
   }
+
+  /* ---- Trainer status bar: who you are, what you're fighting with, what you've won ---- */
+  function renderHubHud(j){
+    const hud=g("hubHud"); if(!hud)return;
+    const legs=(typeof myLegends==="function"?myLegends():[]).map(ensureLegendSkills);
+    if(!player||!legs.length){ hud.style.display="none"; return; }
+    const c=(typeof activeLegend==="function"&&activeLegend())||legs[0];
+    const el=legElem(SPECIES.indexOf(c.sp));
+    const you=(j&&j.you)||{};
+    const glory=Math.round(you.glory!=null?you.glory:(player.glory||0));
+    const escrow=Math.round(you.escrow||0);
+    const max=legStamMax(c.level||1), cur=Math.round(c.arenaStam!=null?c.arenaStam:max);
+    const now=Date.now(), resting=c.arenaSleepUntil&&c.arenaSleepUntil>now;
+    const pct=Math.max(0,Math.min(100,cur/max*100));
+    const barCls=resting?"rest":(cur<ARENA_STAM?"low":"");
+    const fights=Math.floor(cur/ARENA_STAM);
+
+    hud.style.display="flex";
+    hud.innerHTML=
+      `<div class="hhWho">${elemOrb(el,"hhOrb")}
+        <div style="min-width:0">
+          <div class="hhName">${escL((player&&player.handle)||"Trainer")}</div>
+          <div class="hhSub">${escL(nameOf(c))} · ${el} · BR ${c.br||1}${legs.length>1?" · "+legs.length+" Legendaries":""}</div>
+        </div></div>
+      <div class="hhStats">
+        <span class="hhPill glory">✨ <b>${glory.toLocaleString()}</b> Glory${escrow?` <small style="color:#b9a25f">(${escrow} staked)</small>`:""}</span>
+        <span class="hhPill win">⚔️ <b>${you.wins||player.pvpWins||0}</b>W</span>
+        <span class="hhPill loss"><b>${you.losses||0}</b>L</span>
+        ${(you.streak||0)>1?`<span class="hhPill streak">🔥 <b>${you.streak}</b> streak</span>`:""}
+        <span class="hhPill live"><b>${(j&&j.online)||1}</b> in the Chikiseum</span>
+      </div>
+      <div class="hhStam">
+        <span>${resting?"💤 Resting":"⚡ Arena stamina"}</span>
+        <span class="bar"><i class="${barCls}" style="width:${pct}%"></i></span>
+        <span>${resting?fmtSleep((c.arenaSleepUntil-now)/1000):`${cur}/${max} · ${fights} fight${fights===1?"":"s"} left`}</span>
+      </div>`;
+  }
+
   function pvpLobbyRender(j){
     const panel=g("pvpLobby"); if(!panel)return; panel.style.display="block";
     const players=j.players||[], chs=j.challenges||[];
-    let h='<div class="lobHd">⚔️ Trainers ready to battle <span class="lobN">'+players.length+'</span></div>';
-    if(chs.length)h+=chs.map(c=>'<div class="lobRow chal"><span>🔔 <b>'+esc(c.fromName)+'</b> challenges you!</span><span><button class="lobBtn acc" data-acc="'+c.id+'">Accept</button> <button class="lobBtn dec" data-dec="'+c.id+'">✕</button></span></div>').join("");
-    if(players.length)h+=players.map(p=>{ const sent=!!_lobbyChallenged[p.wallet]; return '<div class="lobRow"><span>'+(p.searching?"🔍":"🟢")+' '+esc(p.name)+(p.searching?' <small style="color:#ffd166;font-weight:700">searching</small>':'')+'</span><button class="lobBtn'+(sent?' sent':'')+'" data-ch="'+p.wallet+'" data-nm="'+esc(p.name)+'"'+(sent?' disabled':'')+'>'+(sent?'Challenged ✓':'⚔️ Challenge')+'</button></div>'; }).join("");
-    else if(!chs.length)h+='<div class="lobEmpty">No other Trainers ready right now. Keep the Chikiseum open — anyone who opens it appears here, and you\'ll match instantly. 🌊</div>';
-    panel.innerHTML=h;
+    const you=j.you||{};
+    const spendable=Math.round(you.spendable!=null?you.spendable:(player&&player.glory)||0);
+    const rakePct=(PVP_RAKE_BP/100).toFixed(PVP_RAKE_BP%100?1:0);
+
+    /* --- wager rail --- */
+    const tiers=PVP_WAGER_TIERS.map(t=>{
+      const afford=t===0||t<=spendable;
+      return `<button class="wagBtn${t===_pvpWager?" on":""}" data-wag="${t}"${afford?"":" disabled title=\"Not enough Glory\""}>${t===0?"🤝 Free":t+" ✨"}</button>`;
+    }).join("");
+    const pot=_pvpWager*2, keep=Math.round(_pvpWager*(1-PVP_RAKE_BP/10000));
+    const wager=
+      `<div class="wagRail">
+        <div class="wagHd"><span>💰 Your stake</span><small>${spendable.toLocaleString()} ✨ available</small></div>
+        <div class="wagRow">${tiers}</div>
+        <div class="wagNote">${_pvpWager
+          ? `Winner takes <b style="color:#ffe27a">${(_pvpWager+keep).toLocaleString()} ✨</b> of the ${pot.toLocaleString()} ✨ pot (${rakePct}% funds the Chikoria Cup). Both stakes are held in escrow until the match ends — a forfeit pays your opponent.`
+          : `Playing for pride. Pick a stake and every match you find or accept is played for Glory — settled on the <b>lower</b> of the two stakes, so you can never be out-staked.`}</div>
+      </div>`;
+
+    /* --- challenges aimed at you --- */
+    const chalHtml=chs.map(c=>
+      `<div class="lobRow chal">
+        <div class="lobOrb" style="background:#6b541022;color:#ffd166">🔔</div>
+        <div class="lobWho"><div class="lobNm">${escL(c.fromName)} challenges you!</div>
+          <div class="lobMeta">BR ${c.br||1}${c.wager?` · <span class="stk">${c.wager} ✨ stake</span>`:" · friendly"}</div></div>
+        <button class="lobBtn acc" data-acc="${c.id}">Accept</button>
+        <button class="lobBtn dec" data-dec="${c.id}">✕</button>
+      </div>`).join("");
+
+    /* --- everyone else in the hub --- */
+    const rows=players.map(p=>{
+      const sent=!!_lobbyChallenged[p.wallet];
+      const stake=Math.min(p.wager||0,_pvpWager);
+      return `<div class="lobRow">
+        ${elemOrb(p.element)}
+        <div class="lobWho"><div class="lobNm">${escL(p.name)}</div>
+          <div class="lobMeta">BR ${p.br||1}${p.searching?' · <span class="sea">🔍 searching</span>':""}${stake?` · <span class="stk">${stake} ✨</span>`:(p.wager?` · wants ${p.wager} ✨`:"")}</div></div>
+        <button class="lobBtn${sent?" sent":""}" data-ch="${p.wallet}" data-nm="${escL(p.name)}"${sent?" disabled":""}>${sent?"Challenged ✓":"⚔️ Challenge"}</button>
+      </div>`;}).join("");
+
+    const empty=`<div class="lobEmpty">No other Trainers ready right now.<br>Keep the Chikiseum open — anyone who walks in appears here, and you'll match instantly. 🌊</div>`;
+
+    panel.innerHTML=
+      `<div class="lobHd"><span class="lobDot"></span>⚔️ Trainers ready to battle <span class="lobN">${players.length}</span>
+        ${_pvpSearching?'<span style="margin-left:auto;font-size:11.5px;color:#ffd166;font-weight:800">🔎 searching…</span>':""}</div>
+       <div class="lobBody">${wager}${chalHtml}${rows||(chs.length?"":empty)}
+        <button class="lobFind" id="lobFindBtn">⚔️ Find a Match${_pvpWager?` · ${_pvpWager} ✨`:""}</button>
+       </div>`;
+
+    panel.querySelectorAll("[data-wag]").forEach(b=>b.onclick=()=>setPvpWager(+b.getAttribute("data-wag")));
     panel.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>pvpChallengeSend(b.getAttribute("data-ch"),b.getAttribute("data-nm")));
     panel.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>pvpChallengeAccept(b.getAttribute("data-acc")));
     panel.querySelectorAll("[data-dec]").forEach(b=>b.onclick=()=>pvpChallengeDecline(b.getAttribute("data-dec")));
+    const fb=g("lobFindBtn"); if(fb)fb.onclick=()=>{ if(typeof hideArenaIntro==="function")hideArenaIntro(); findMatch(); renderArenaMeta(); };
   }
+
   function pvpChallengeSend(to,nm){ const snap=legendSnap(); if(!snap||!player)return; _lobbyChallenged[to]=Date.now();
-    fetch(CHAIN.BACKEND+"/pvp/challenge",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({from:player.pk,fromName:(player.handle||player.addr||"Trainer"),to,snap})}).catch(()=>{});
-    if(typeof showBanner==="function")showBanner("⚔️ Challenge sent to "+nm+"! Waiting for them to accept…","info"); pvpLobbyTick();
+    fetch(CHAIN.BACKEND+"/pvp/challenge",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({from:player.pk,fromName:(player.handle||player.addr||"Trainer"),to,snap,wager:_pvpWager})}).catch(()=>{});
+    if(typeof showBanner==="function")showBanner("⚔️ Challenge sent to "+nm+(_pvpWager?" for <b>"+_pvpWager+" ✨</b>":"")+"! Waiting for them to accept…","info"); pvpLobbyTick();
   }
   function pvpChallengeAccept(id){ const snap=legendSnap(); if(!snap||!player)return;
-    fetch(CHAIN.BACKEND+"/pvp/challenge/accept",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,challengeId:id,snap})})
+    fetch(CHAIN.BACKEND+"/pvp/challenge/accept",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,challengeId:id,snap,wager:_pvpWager})})
       .then(r=>r.json()).then(j=>{ if(j&&j.matchId)startPvp(j.matchId,j.side); else if(typeof showBanner==="function")showBanner("⚠️ "+((j&&j.error)||"challenge expired"),"error"); }).catch(()=>{});
   }
   function pvpChallengeDecline(id){ if(player)fetch(CHAIN.BACKEND+"/pvp/challenge/decline",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,challengeId:id})}).catch(()=>{}); pvpLobbyTick(); }
@@ -3649,7 +3843,7 @@ setInterval(updateWhaleTab,1000);
       if(s.lastTurn && s.lastTurn.turn!==_pvpLastTurn && Array.isArray(s.lastTurn.seq) && s.lastTurn.seq.length){
         _pvpLastTurn=s.lastTurn.turn; await pvpAnimate(s.lastTurn); if(!B||!B.pvp)return;
       } else if(s.lastTurn){ _pvpLastTurn=s.lastTurn.turn; }
-      if(s.over){ pvpFinish(s.result==="win", s.reason); return; }
+      if(s.over){ pvpFinish(s.result==="win", s.reason, s); return; }
     }catch(e){}
     if(B&&B.pvp&&!B.over)_pvpPoll=setTimeout(pvpTickLoop,1200);
   }
@@ -3667,8 +3861,12 @@ setInterval(updateWhaleTab,1000);
     else { let em=1; try{ em=elemMult(legElem(B.you.si),legElem(B.foe.si)); }catch(e){}
       const emc=em>1?"#3ddc84":em<1?"#ff8a8a":"#cfe0ff";
       mid=legElem(B.you.si)+" <span style='color:#9fb3d6'>▸</span> "+legElem(B.foe.si)+(em!==1?" <span style='color:"+emc+"'>×"+em+"</span>":""); }
+    const stake=(B._stake||0)>0
+      ? "<div style='font-size:11.5px;font-weight:900;margin-top:3px;color:#ffe27a'>💰 "+(B._pot||B._stake*2).toLocaleString()+" ✨ pot &nbsp;<span style='color:#b9a25f;font-weight:700'>("+B._stake+" ✨ each)</span></div>"
+      : "";
     el.innerHTML=vs+
       "<div style='font-size:11.5px;font-weight:800;color:#ffe27a;letter-spacing:.2px;margin-top:2px'>"+mid+"</div>"+
+      stake+
       (B._pvpStatus?"<div style='font-size:12px;font-weight:700;margin-top:3px;color:"+(B._pvpStatusCol||"#cfe0ff")+"'>"+B._pvpStatus+"</div>":"");
     el.style.display="block";
   }
@@ -3687,7 +3885,8 @@ setInterval(updateWhaleTab,1000);
         <div class="step"><span class="ic">🔒</span><div>Tap the big <b>LOCK IN</b> button to commit. Both players reveal <b>at the same time</b>, then trade blows.</div></div>
         <div class="step"><span class="ic">❤️</span><div>Drop the enemy's <b>HP to 0</b> to win a game. <b>First to 2 games</b> wins the match (best of 3).</div></div>
         <div class="step"><span class="ic">🛡️</span><div><b>Shields</b> absorb damage. <b>Quick</b> ignores shields; <b>Rend</b> ignores half.</div></div>
-        <div class="step"><span class="ic">🌊</span><div><b>Elements</b>: Water▸Fire▸Beast▸Storm▸Light▸Water. Beating the enemy's element hits <b>+10%</b>; losing, <b>−10%</b>.</div></div>
+        <div class="step"><span class="ic">🌊</span><div><b>Elements</b>: Water▸Fire▸Beast▸Storm▸Light▸Water. Hit the element you beat for <b>×1.5</b> damage; take only <b>×0.7</b> from it.</div></div>
+        <div class="step"><span class="ic">💰</span><div><b>Wagers</b>: set a ✨ Glory stake in the hub before you battle. Both stakes are escrowed and the <b>winner takes the pot</b> — a forfeit pays your opponent.</div></div>
         <div class="step"><span class="ic">⏱️</span><div>Each turn has a <b>timer</b>. If it runs out a hand is auto-played — so don't go idle!</div></div>
         <button class="go" id="bHelpGo">Got it — let's battle! ⚔️</button></div>`;
       box.appendChild(h);
@@ -3720,6 +3919,7 @@ setInterval(updateWhaleTab,1000);
     B._left=Math.max(0,Math.ceil((s.deadlineInMs||0)/1000));
     if(!B.you.queue)B.you.queue=[]; B.you.queue=B.you.queue.filter(i=>i<B.you.hand.length);
     B._foeSub=!!s.foeSubmitted;
+    if(s.wager){ B._stake=s.wager.stake||0; B._pot=s.wager.pot||0; }
     if(s.bestOf>1){ B.series={bestOf:s.bestOf,game:s.game,you:(s.score&&s.score.you)||0,foe:(s.score&&s.score.foe)||0}; }
     pvpTop();
     if(_pvpAnimating)return;
@@ -3769,10 +3969,10 @@ setInterval(updateWhaleTab,1000);
     }
     _pvpAnimating=false;
   }
-  function pvpFinish(win,reason){
+  function pvpFinish(win,reason,srv){
     if(_pvpPoll){clearTimeout(_pvpPoll);_pvpPoll=null;}
     pvpClockStop();
-    if(!B)return; const fromCup=B.pvp&&B.pvp.fromCup; B.pvp=null; B.over=true;
+    if(!B)return; const fromCup=B.pvp&&B.pvp.fromCup; const stake=B._stake||0; B.pvp=null; B.over=true;
     const sp=g("pvpSeries"); if(sp)sp.style.display="none";
     if(B.series&&B.series.bestOf>1)log("🏁 <b>Best-of-"+B.series.bestOf+" series:</b> "+B.series.you+"–"+B.series.foe+(win?" — series won! 🏆":" — series lost."));
     if(reason==="forfeit")log(win?"🏳️ <b style='color:#3ddc84'>Opponent forfeited — you win!</b>":"🏳️ You forfeited the match.");
@@ -3785,6 +3985,26 @@ setInterval(updateWhaleTab,1000);
         hub.style.cssText="font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;padding:11px 22px;border:none;border-radius:12px;background:linear-gradient(180deg,#7aa9ff,#3a6ad0);color:#fff;cursor:pointer;box-shadow:0 4px 0 #2a4a9a";
         hub.onclick=()=>{ B=null; if(ar)ar.innerHTML=""; ac.innerHTML=""; const sp2=g("pvpSeries"); if(sp2)sp2.style.display="none"; showArenaIntro(); };
         ac.appendChild(hub); }
+    }
+    /* The server owns Glory in a live match — it escrowed both stakes and has
+       already paid the pot out. Take its number rather than the local award in
+       end(), which is written for the offline AI ladder and would double-count. */
+    if(srv&&player&&srv.gloryAfter!=null){
+      player.glory=srv.gloryAfter;
+      if(typeof saveProfile==="function"&&player.pk)saveProfile(player);
+      if(typeof renderArenaMeta==="function")renderArenaMeta();
+    }
+    if(stake>0&&srv){
+      if(win){
+        const pot=(srv.stakeWon||0)+stake;
+        log(`💰 <b style="color:#ffe27a">You won the pot — +${(srv.stakeWon||0).toLocaleString()} ✨</b> from the wager${srv.baseGlory?` · +${srv.baseGlory} ✨ battle Glory`:""}.`);
+        if(typeof showBanner==="function")showBanner(`💰 <b>Wager won!</b> +${(srv.stakeWon||0).toLocaleString()} ✨ Glory taken from your opponent.`,"");
+        if(typeof addFeed==="function")addFeed(`💰 Won a <b>${stake} ✨</b> wager in the Chikiseum — pot of <b>${pot.toLocaleString()} ✨</b>.`);
+      }else{
+        log(`💸 <b style="color:#ff9a9a">You lost your ${stake} ✨ stake.</b> Win it back — your deck decides.`);
+        if(typeof showBanner==="function")showBanner(`💸 <b>Wager lost</b> — ${stake} ✨ Glory went to your opponent.`,"error");
+        if(typeof addFeed==="function")addFeed(`💸 Lost a <b>${stake} ✨</b> wager in the Chikiseum.`);
+      }
     }
     if(fromCup){   /* Cup match → don't offer "Battle again"; send the player back to the Cup to await the round result */
       g("arenaResult").innerHTML=win?"🏆 <span style='color:#3ddc84'>YOU WIN!</span>":"💀 <span style='color:#ff6b6b'>You lost…</span>";
@@ -3921,7 +4141,8 @@ setInterval(updateWhaleTab,1000);
   if(ab){
     ab.style.display="";   /* always show the Chikiseum tab (CSS still hides it on the pre-game screen) */
     /* ---- Chikiseum intro: Welcome / Mechanics / Tokenomics ---- */
-    function showArenaIntro(){ const bx=g("arenaBox"); if(bx)bx.classList.add("introMode"); const ai=g("arenaIntro"); if(ai)ai.style.display="block"; }
+    function showArenaIntro(){ const bx=g("arenaBox"); if(bx)bx.classList.add("introMode"); const ai=g("arenaIntro"); if(ai)ai.style.display="block";
+      try{ pvpLobbyTick(); }catch(e){}   /* paint the HUD + lobby now, don't wait for the next tick */ }
     function hideArenaIntro(){ const bx=g("arenaBox"); if(bx)bx.classList.remove("introMode"); const ai=g("arenaIntro"); if(ai)ai.style.display="none"; }
     function aiSelect(name){
       document.querySelectorAll(".aiTab").forEach(t=>t.classList.toggle("on",t.dataset.ai===name));
