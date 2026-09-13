@@ -53,10 +53,21 @@ const peek = wallet => (store.data().profiles[wallet] || null);
 /* Glory the player can actually stake right now (escrowed Glory is already committed). */
 const spendable = p => Math.max(0, Math.floor((p.glory || 0) - (p.escrow || 0)));
 
+/* Every server-side Glory change stamps the profile. A client post that lands
+   inside SETTLE_WINDOW_MS of one is treated as stale and its Glory ignored —
+   without this, the loser's saveProfile() inside end() (which still holds the
+   pre-match number) races the settlement and hands their stake back. */
+const SETTLE_WINDOW_MS = 120000;
+
+function touchGlory(p) {
+  if (p) p.gloryTouched = Date.now();
+}
+
 function addGlory(wallet, amount) {
   const p = get(wallet);
   if (!p) return 0;
   p.glory = Math.max(0, Math.round((p.glory || 0) + amount));
+  touchGlory(p);
   store.save();
   return p.glory;
 }
@@ -85,8 +96,8 @@ function settleWager(winnerWallet, loserWallet, stake, rakeBp) {
   release(winnerWallet, stake);
   release(loserWallet, stake);
   const w = get(winnerWallet), l = get(loserWallet);
-  if (w) { w.glory = Math.max(0, Math.round(w.glory + won)); w.wagerWon = (w.wagerWon || 0) + won; }
-  if (l) { l.glory = Math.max(0, Math.round(l.glory - stake)); l.wagerLost = (l.wagerLost || 0) + stake; }
+  if (w) { w.glory = Math.max(0, Math.round(w.glory + won)); w.wagerWon = (w.wagerWon || 0) + won; touchGlory(w); }
+  if (l) { l.glory = Math.max(0, Math.round(l.glory - stake)); l.wagerLost = (l.wagerLost || 0) + stake; touchGlory(l); }
   const db = store.data();
   db.totals.wagerRake = Math.round((db.totals.wagerRake || 0) + rake);
   store.save();
@@ -105,12 +116,13 @@ function recordResult(wallet, win, gloryDelta) {
     p.pvpStreak = 0;
   }
   if (gloryDelta) p.glory = Math.max(0, Math.round((p.glory || 0) + gloryDelta));
+  touchGlory(p);
   store.save();
 }
 
 /* The client posts its whole save blob. Take the descriptive parts verbatim, but
-   only ever RAISE server Glory from it when the client is ahead and nothing is
-   escrowed — otherwise a stale tab could wipe out a wager mid-match. */
+   only ever RAISE server Glory from it when the client is ahead, nothing is
+   escrowed, and the server has not just settled something for this wallet. */
 function syncFromClient(wallet, profile) {
   const p = get(wallet);
   if (!p || !profile || typeof profile !== 'object') return p;
@@ -120,7 +132,8 @@ function syncFromClient(wallet, profile) {
   p.chikis = Array.isArray(profile.chikis) ? profile.chikis : p.chikis;
   p.lastSeen = Date.now();
   const claimed = Math.max(0, Math.floor(Number(profile.glory) || 0));
-  if (!p.escrow && claimed > (p.glory || 0)) p.glory = claimed;
+  const settling = Date.now() - (p.gloryTouched || 0) < SETTLE_WINDOW_MS;
+  if (!p.escrow && !settling && claimed > (p.glory || 0)) p.glory = claimed;
   store.save();
   return p;
 }

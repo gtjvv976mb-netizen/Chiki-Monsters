@@ -85,6 +85,20 @@ const snap = (name, el, br) => ({ name, handle: name, element: el, br, arenaSkil
   ok(rake === 5, '5% rake (' + rake + ' Glory) skimmed to the Cup pool');
   ok(winner.glory + loser.glory + rake === 1800 + (sa.result === 'win' ? sa.baseGlory : sb.baseGlory), 'Glory is conserved: stakes + rake + base reward balance');
 
+  /* Regression: the loser's client calls saveProfile() inside end() with the
+     PRE-MATCH Glory. That post must not hand their stake back. */
+  console.log('\n4b. a stale client post cannot undo a settlement');
+  const loserWallet = sa.result === 'win' ? 'WALLET_B' : 'WALLET_A';
+  const loserBefore = (await get('/claimable?wallet=' + loserWallet)).glory;
+  await post('/profile', { wallet: loserWallet, profile: { handle: 'stale', glory: 900, bal: 600000, chikis: [] } });
+  const loserAfter = (await get('/claimable?wallet=' + loserWallet)).glory;
+  ok(loserAfter === loserBefore, 'stale pre-match profile ignored (' + loserBefore + ' stayed ' + loserAfter + ', not 900)');
+
+  const winnerWallet = sa.result === 'win' ? 'WALLET_A' : 'WALLET_B';
+  const winBefore = (await get('/claimable?wallet=' + winnerWallet)).glory;
+  await post('/profile', { wallet: winnerWallet, profile: { handle: 'stale', glory: 99999, bal: 600000, chikis: [] } });
+  ok((await get('/claimable?wallet=' + winnerWallet)).glory === winBefore, 'inflated post right after a settlement is ignored too');
+
   console.log('\n5. spectating');
   const spec = await get('/pvp/spectate?matchId=' + matchId);
   ok(spec.a && spec.b && spec.over === true, 'spectate view renders both fighters');

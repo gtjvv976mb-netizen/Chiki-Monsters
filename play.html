@@ -811,17 +811,18 @@ if(location.search.indexOf("embed")>-1){
 #arenaInfo{cursor:pointer;font-size:15px;margin-left:auto;margin-right:10px;opacity:.85}
 #arenaInfo:hover{opacity:1}
 #arenaIntro{display:none}
-.aiTabs{display:flex;gap:7px;margin:2px 0 13px;flex-wrap:wrap}
-.aiTab{font-family:inherit;font-weight:800;font-size:13px;padding:9px 14px;border-radius:10px;border:1px solid #2c4470;background:rgba(13,20,38,.7);color:#9fb3d6;cursor:pointer;transition:background .12s,color .12s}
+.aiTabs{display:flex;gap:6px;margin:0;flex-wrap:wrap}
+.aiTab{font-family:inherit;font-weight:800;font-size:12.5px;padding:8px 12px;border-radius:10px;border:1px solid #2c4470;background:rgba(13,20,38,.7);color:#9fb3d6;cursor:pointer;transition:background .12s,color .12s}
 .aiTab:hover{color:#dbe6fb;border-color:#3d5a8c}
 .aiTab.on{background:linear-gradient(180deg,#2a3c64,#1a2744);color:#ffd93d;border-color:#b98a2e;box-shadow:0 2px 0 #b98a2e}
-.aiPane{display:none;font-size:14px;line-height:1.62;color:#dde7fb}
+.aiPane{display:none;font-size:13.5px;line-height:1.58;color:#dde7fb}
 .aiPane.on{display:block}
-.aiPane h3{font-size:20px;color:#ffe9b0;margin-bottom:8px;letter-spacing:.2px}
+.aiPane h3{font-size:18px;color:#ffe9b0;margin-bottom:7px;letter-spacing:.2px}
 .aiPane p{margin:0 0 10px}
 .aiPane b{color:#ffe27a}
 .aiVid{width:100%;max-height:46vh;border-radius:12px;border:1px solid #2c4470;margin:0 0 12px;background:#0a1020;display:block;box-shadow:0 6px 18px rgba(0,0,0,.4)}
-.aiBlock{background:rgba(0,0,0,.24);border:1px solid #2c4470;border-radius:12px;padding:12px 14px;margin-bottom:11px}
+.aiBlock{background:rgba(0,0,0,.24);border:1px solid #2c4470;border-radius:11px;padding:10px 12px;margin-bottom:8px;text-align:left}
+.aiPane>p{text-align:left}   /* headings and the element triangle stay centred; body copy reads left */
 .aiBlock h4{color:#ffd93d;font-size:15px;margin-bottom:5px}
 .aiBlock.glory{border-color:#b98a2e;background:linear-gradient(180deg,rgba(60,46,12,.4),rgba(0,0,0,.24))}
 .aiTrivia{margin-top:10px;background:rgba(0,0,0,.3);border-left:3px solid #ffd24a;border-radius:8px;padding:10px 12px;font-size:13px;color:#cfe0ff;line-height:1.55}
@@ -869,12 +870,12 @@ if(location.search.indexOf("embed")>-1){
 .hcBtn.up.max{background:linear-gradient(180deg,#9fe0a0,#4aa85e);color:#06240f;border-color:#2c6a3a}
 .hcBtn.buy{background:linear-gradient(180deg,#7a3aa8,#4a2270);color:#f0d9ff;border-color:#b061ff}
 /* hub 3D legendary viewer */
-#hubLeg3D{display:flex;gap:16px;align-items:center;background:linear-gradient(180deg,rgba(20,28,52,.6),rgba(11,17,36,.6));border:1px solid #2c4470;border-radius:14px;padding:12px 14px;margin-bottom:14px;flex-wrap:wrap}
-#hub3d{position:relative;width:260px;height:260px;flex:0 0 auto;border-radius:12px;overflow:hidden;background:radial-gradient(circle at 50% 62%,rgba(120,200,255,.16),transparent 70%);cursor:grab}
+#hubLeg3D{display:flex;gap:13px;align-items:center;background:linear-gradient(180deg,rgba(20,28,52,.6),rgba(11,17,36,.6));border:1px solid #2c4470;border-radius:13px;padding:10px 12px;margin-bottom:10px;flex-wrap:wrap}
+#hub3d{position:relative;width:206px;height:206px;flex:0 0 auto;border-radius:12px;overflow:hidden;background:radial-gradient(circle at 50% 62%,rgba(120,200,255,.16),transparent 70%);cursor:grab}
 #hub3d canvas{display:block;width:100%;height:100%}
 #hub3d .ld{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#9fb3d6}
 #hubLegStats{flex:1;min-width:200px}
-.hls-name{font-size:22px;font-weight:800}
+.hls-name{font-size:19px;font-weight:800}
 .hls-sub{font-size:12.5px;color:#aebbd6;margin-top:1px}
 .hls-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .hls-stat{background:rgba(0,0,0,.3);border:1px solid #2c4470;border-radius:9px;padding:6px 11px;font-size:13px;color:#cfdcf2}
@@ -915,7 +916,29 @@ if(location.search.indexOf("embed")>-1){
   background:url("ui/arena.png") center/cover no-repeat}
 #arenaBox::after{content:"";position:absolute;inset:0;background:rgba(5,8,15,.30);pointer-events:none;z-index:0}
 #arenaBox.introMode{background:radial-gradient(120% 80% at 50% 0%,#243a63,#0d1426 75%);overflow-y:auto}
-#arenaBox.introMode #arenaIntro{position:relative;z-index:2;max-width:780px;margin:46px auto 24px;padding:0 16px 24px}
+/* ===== HUB LAYOUT — a two-column console that fills the window instead of one
+   tall scroll: identity bar on top, battle rail on the left, deck/guides right. ===== */
+#arenaBox.introMode #arenaIntro{position:relative;z-index:2;width:100%;max-width:1180px;margin:40px auto 16px;padding:0 16px 16px;
+  display:flex;flex-direction:column;gap:10px}
+#hubCols{display:grid;grid-template-columns:318px minmax(0,1fr);gap:12px;align-items:start}
+#hubSide{display:flex;flex-direction:column;gap:9px;position:sticky;top:0}
+#hubMain{min-width:0;display:flex;flex-direction:column;gap:9px}
+.hubActions{display:flex;gap:8px}
+/* quick-reference card — the three rules a new Trainer actually needs */
+#hubRules{background:rgba(8,14,28,.6);border:1px solid #24365a;border-radius:12px;padding:9px 11px}
+#hubRules .rHd{font-size:11px;font-weight:900;color:#8fa6c9;letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px}
+#hubRules .rRow{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;line-height:1.45;color:#b9c8e2;padding:3px 0;text-align:left}
+#hubRules .rRow i{font-style:normal;flex:0 0 16px;text-align:center}
+#hubRules .rRow b{color:#dce8fa;font-weight:800}
+.hubActions .aiEnter{margin-top:0;flex:2;font-size:14px;padding:10px}
+.hubActions .aiEnter.feed{flex:1;background:linear-gradient(180deg,#ffb15a,#e8590c);border-color:#a83e00;box-shadow:0 4px 0 #a83e00;color:#3a1a00}
+/* one column once the rail no longer earns its width */
+@media(max-width:980px){
+  #arenaBox.introMode #arenaIntro{max-width:820px}
+  #hubCols{grid-template-columns:1fr}
+  #hubSide{position:static}
+  #hubRules{display:none}   /* a rail filler — once stacked it only pushes the deck down, and ⚔️ How to Battle covers it */
+}
 #arenaHead{position:absolute;bottom:16px;right:14px;top:auto;left:auto;z-index:46;background:none;border:none;padding:0;margin:0;font-size:0;width:auto;display:flex;flex-direction:column;gap:9px;align-items:flex-end}
 #arenaBox.introMode #arenaHead{position:absolute;top:12px;right:14px;bottom:auto;left:auto}   /* HUB: Exit Chikiseum sits top-right (battles keep it bottom-right) */
 #arenaHead .x{font-size:22px;color:#ffd9d9;cursor:pointer}#arenaInfo{font-size:18px}
@@ -936,16 +959,16 @@ if(location.search.indexOf("embed")>-1){
 #aTimerBox.low .tv{color:#ff8a8a}
 .aMatch2{display:none}   /* matchup/element now lives in the top-center info panel */
 /* ===== Chikiseum HUB HUD — trainer status bar, battle lobby & wager rail ===== */
-#hubHud{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:linear-gradient(180deg,rgba(22,32,58,.92),rgba(11,17,36,.92));
-  border:1px solid #2c4470;border-radius:14px;padding:10px 12px;margin:0 0 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+#hubHud{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:linear-gradient(180deg,rgba(22,32,58,.92),rgba(11,17,36,.92));
+  border:1px solid #2c4470;border-radius:13px;padding:8px 11px;margin:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
 #hubHud .hhWho{display:flex;align-items:center;gap:9px;min-width:0;flex:1 1 190px}
-#hubHud .hhOrb{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 auto;
+#hubHud .hhOrb{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto;
   border:1px solid rgba(255,255,255,.14)}
-#hubHud .hhName{font-weight:900;font-size:14.5px;color:#eaf2ff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#hubHud .hhSub{font-size:11.5px;color:#93a8c9;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hubHud .hhName{font-weight:900;font-size:13.5px;color:#eaf2ff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hubHud .hhSub{font-size:11px;color:#93a8c9;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #hubHud .hhStats{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;flex:1 1 auto}
 .hhPill{display:inline-flex;align-items:center;gap:5px;background:rgba(6,11,24,.72);border:1px solid #2c4470;border-radius:999px;
-  padding:5px 11px;font-size:12.5px;font-weight:800;color:#cfe0ff;white-space:nowrap}
+  padding:4px 9px;font-size:11.5px;font-weight:800;color:#cfe0ff;white-space:nowrap}
 .hhPill b{color:#ffe27a}
 .hhPill.glory b{color:#ffe27a}
 .hhPill.win b{color:#3ddc84}
@@ -953,52 +976,52 @@ if(location.search.indexOf("embed")>-1){
 .hhPill.streak{border-color:#7a5a1e;background:rgba(60,42,8,.5)}
 .hhPill.live{border-color:#1f7a48;background:rgba(10,44,26,.6)}
 .hhPill.live b{color:#3ddc84}
-.hhStam{flex:1 1 100%;display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700;color:#93a8c9}
-.hhStam .bar{flex:1;height:8px;border-radius:5px;background:#0a1020;border:1px solid #26375a;overflow:hidden;min-width:90px}
+.hhStam{flex:1 1 100%;display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;color:#93a8c9;margin-top:1px}
+.hhStam .bar{flex:1;height:6px;border-radius:5px;background:#0a1020;border:1px solid #26375a;overflow:hidden;min-width:90px}
 .hhStam .bar i{display:block;height:100%;background:linear-gradient(90deg,#ffd166,#ffb15a);border-radius:4px;transition:width .3s}
 .hhStam .bar i.low{background:linear-gradient(90deg,#ff8a8a,#e03131)}
 .hhStam .bar i.rest{background:linear-gradient(90deg,#b197fc,#7a5af0)}
 
 #pvpLobby{background:linear-gradient(180deg,rgba(12,20,40,.94),rgba(8,14,28,.94));border:1px solid #2c4470;border-radius:15px;
   padding:0;margin:0 0 13px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.32)}
-#pvpLobby .lobHd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:900;font-size:14px;color:#eaf2ff;
-  padding:11px 13px;background:linear-gradient(180deg,rgba(40,60,102,.55),rgba(20,30,56,.3));border-bottom:1px solid #22355a}
+#pvpLobby .lobHd{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-weight:900;font-size:13px;color:#eaf2ff;
+  padding:9px 11px;background:linear-gradient(180deg,rgba(40,60,102,.55),rgba(20,30,56,.3));border-bottom:1px solid #22355a}
 #pvpLobby .lobN{background:linear-gradient(180deg,#5aa9ff,#1f7bd6);color:#fff;font-size:11px;font-weight:900;border-radius:999px;padding:2px 9px}
 #pvpLobby .lobDot{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;animation:lobPulse 1.8s ease-in-out infinite}
 @keyframes lobPulse{0%,100%{opacity:1}50%{opacity:.35}}
-#pvpLobby .lobBody{padding:9px 13px 12px}
+#pvpLobby .lobBody{padding:8px 11px 10px}
 
 /* wager rail */
-#pvpLobby .wagRail{border:1px solid #3a3016;background:linear-gradient(180deg,rgba(50,40,12,.5),rgba(26,20,6,.4));border-radius:12px;padding:9px 11px;margin-bottom:10px}
-#pvpLobby .wagHd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:800;color:#ffe27a;margin-bottom:8px}
+#pvpLobby .wagRail{border:1px solid #3a3016;background:linear-gradient(180deg,rgba(50,40,12,.5),rgba(26,20,6,.4));border-radius:11px;padding:8px 10px;margin-bottom:8px}
+#pvpLobby .wagHd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:800;color:#ffe27a;margin-bottom:7px}
 #pvpLobby .wagHd small{color:#b9a25f;font-weight:700;font-size:11px}
-#pvpLobby .wagRow{display:flex;gap:6px;flex-wrap:wrap}
-#pvpLobby .wagBtn{font-family:inherit;font-weight:900;font-size:12px;padding:7px 12px;border-radius:9px;cursor:pointer;
+#pvpLobby .wagRow{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+#pvpLobby .wagBtn{font-family:inherit;font-weight:900;font-size:11.5px;padding:6px 0;border-radius:8px;cursor:pointer;text-align:center;
   background:rgba(8,14,28,.8);color:#cfe0ff;border:1px solid #2c4470;transition:transform .12s,background .15s}
 #pvpLobby .wagBtn:hover:not(:disabled){transform:translateY(-1px);background:#1a2c4a}
 #pvpLobby .wagBtn.on{background:linear-gradient(180deg,#ffe27a,#e0a800);color:#3a2a06;border-color:#b98a2e;box-shadow:0 2px 0 #a87c00}
 #pvpLobby .wagBtn:disabled{opacity:.35;cursor:not-allowed}
-#pvpLobby .wagNote{font-size:11.5px;color:#9fb3d6;margin-top:7px;line-height:1.5}
+#pvpLobby .wagNote{font-size:11px;color:#9fb3d6;margin-top:6px;line-height:1.45}
 
 /* trainer rows */
-#pvpLobby .lobRow{display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid #1c2c48;font-size:13px;color:#e7eefb;font-weight:700}
+#pvpLobby .lobRow{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #1c2c48;font-size:12.5px;color:#e7eefb;font-weight:700}
 #pvpLobby .lobRow:first-child{border-top:none}
 #pvpLobby .lobRow.chal{background:linear-gradient(90deg,rgba(60,46,8,.5),transparent);border-radius:10px;padding:8px;border-top:none;margin-bottom:4px;
   box-shadow:inset 0 0 0 1px #6b5410}
-#pvpLobby .lobOrb{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 auto}
+#pvpLobby .lobOrb{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 auto}
 #pvpLobby .lobWho{flex:1;min-width:0}
 #pvpLobby .lobNm{font-weight:800;font-size:13px;color:#eaf2ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pvpLobby .lobMeta{font-size:11px;color:#8fa6c9;font-weight:700}
 #pvpLobby .lobMeta .stk{color:#ffe27a}
 #pvpLobby .lobMeta .sea{color:#ffd166}
-#pvpLobby .lobEmpty{font-size:12.5px;color:#8fa6c9;line-height:1.55;padding:10px 2px;text-align:center}
+#pvpLobby .lobEmpty{font-size:11.5px;color:#8fa6c9;line-height:1.5;padding:8px 2px;text-align:center}
 #pvpLobby .lobBtn{font-family:inherit;font-weight:800;font-size:12px;padding:7px 12px;border:none;border-radius:9px;cursor:pointer;
   background:linear-gradient(180deg,#5aa9ff,#1f7bd6);color:#fff;flex:0 0 auto;transition:transform .12s}
 #pvpLobby .lobBtn:hover:not(:disabled){transform:translateY(-1px)}
 #pvpLobby .lobBtn.acc{background:linear-gradient(180deg,#5fe08a,#28a55a);color:#04220f}
 #pvpLobby .lobBtn.dec{background:rgba(40,20,20,.8);color:#ff9a9a;padding:7px 10px}
 #pvpLobby .lobBtn.sent,#pvpLobby .lobBtn:disabled{background:#2c4470;color:#9fb3d6;cursor:default;transform:none}
-#pvpLobby .lobFind{width:100%;margin-top:10px;font-family:inherit;font-weight:900;font-size:15px;padding:12px;border:none;border-radius:12px;cursor:pointer;
+#pvpLobby .lobFind{width:100%;margin-top:9px;font-family:inherit;font-weight:900;font-size:14px;padding:11px;border:none;border-radius:12px;cursor:pointer;
   background:linear-gradient(180deg,#ffd166,#e0a800);color:#3a2a06;box-shadow:0 4px 0 #a87c00;transition:transform .12s}
 #pvpLobby .lobFind:hover{transform:translateY(-1px)}
 #pvpLobby .lobFind:active{transform:translateY(3px);box-shadow:0 1px 0 #a87c00}
@@ -1090,7 +1113,21 @@ if(location.search.indexOf("embed")>-1){
   <div id="arenaIntro">
     <div id="hubChampBanner" style="display:none"></div>
     <div id="hubHud" style="display:none"></div>
+    <div id="hubCols">
+    <div id="hubSide">
     <div id="pvpLobby" style="display:none"></div>
+    <div class="hubActions">
+      <button class="aiEnter feed" id="arenaHubFeed">🍖 Feed</button>
+      <button class="aiEnter" id="arenaEnter">⚔️ Enter the Arena</button>
+    </div>
+    <div id="hubRules">
+      <div class="rHd">How a duel works</div>
+      <div class="rRow"><i>🃏</i><div>Plan up to <b>3 cards</b> a turn within your <b>⚡ Energy</b>, then lock in — both reveal at once.</div></div>
+      <div class="rRow"><i>🏆</i><div>Drop the enemy to <b>0 HP</b> to take a game. <b>First to 2</b> wins the match.</div></div>
+      <div class="rRow"><i>⚡</i><div>Each fight spends <b>30 stamina</b>. Run dry and your Legendary sleeps — or feed it.</div></div>
+    </div>
+    </div>
+    <div id="hubMain">
     <div class="aiTabs">
       <button class="aiTab on" data-ai="cards">🃏 My Deck</button>
       <button class="aiTab" data-ai="mech">⚔️ How to Battle</button>
@@ -1142,10 +1179,8 @@ if(location.search.indexOf("embed")>-1){
       <div style="font-size:12.5px;color:#aebbd6;margin-bottom:10px">Your full skill deck — owned cards show their Tier (◆), locked cards can be minted at the 🔮 Mystic Market. Tap any card to enlarge it.</div>
       <div id="hubCards"></div>
     </div>
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button class="aiEnter" id="arenaHubFeed" style="flex:1;background:linear-gradient(180deg,#ffb15a,#e8590c);border-color:#a83e00;box-shadow:0 4px 0 #a83e00">🍖 Feed</button>
-      <button class="aiEnter" id="arenaEnter" style="flex:2;margin-top:0">⚔️ Enter the Arena</button>
-    </div>
+    </div><!-- /hubMain -->
+    </div><!-- /hubCols -->
   </div>
   <div id="arenaMeta"></div>
   <div id="arenaStage">
