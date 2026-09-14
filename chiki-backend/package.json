@@ -1,0 +1,22 @@
+{
+  "name": "chikoria-backend",
+  "version": "1.0.0",
+  "description": "Live Chikiseum PvP, Glory wagers and the Chikoria Cup for Chiki Monsters",
+  "main": "server.js",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test/smoke.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "optionalDependencies": {
+    "@solana/web3.js": "^1.95.3",
+    "bs58": "^5.0.0",
+    "tweetnacl": "^1.0.3"
+  },
+  "license": "MIT"
+}

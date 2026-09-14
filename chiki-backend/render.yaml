@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: chikoria-backend
+    runtime: node
+    plan: starter
+    rootDir: chiki-backend
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: DATA_DIR
+        value: /var/data
+      - key: ADMIN_WALLETS
+        sync: false
+      - key: SOLANA_RPC
+        sync: false
+      # TREASURY_SECRET is intentionally absent — add it by hand, in the
+      # dashboard, only when you actually want real SOL payouts enabled.
+    disk:
+      name: chikoria-data
+      mountPath: /var/data
+      sizeGB: 1
