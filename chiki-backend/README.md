@@ -86,23 +86,65 @@ the champion) and land in each winner's pouch. **Bots and banned wallets are
 always paid 0.** In `auto` mode the server starts and finalises every round on its
 own; otherwise an admin drives it.
 
-## Security notes — read before deploying
+## Identity
 
-- **Player identity is an unsigned wallet string.** `/pvp/move` and friends trust
-  the `wallet` field because that is what the shipped client sends. Anyone who
-  knows another player's address can act as them. Fixing this properly means
-  having the client sign a login message (the admin routes already do exactly
-  that — see `verifyAdmin`) and issuing a session token. Do that before real
-  value rides on wagers.
-- **Cup admin routes are gated on the wallet list only**, matching what the client
-  sends. The destructive routes (`/admin/ban`, `/admin/gift-chiki`,
-  `/admin/grant-glory`) require a real ed25519 signature over a timestamped
-  message and reject anything older than 5 minutes.
+Every route that moves value requires proof that the caller controls the wallet
+it claims. The client signs one timestamped message with Phantom:
+
+```
+Chikoria sign-in
+wallet:<pubkey>
+ts:<ms>
+nonce:<random>
+```
+
+`POST /auth/login` verifies the ed25519 signature and returns a bearer token
+(7 days by default). Signatures older than 5 minutes are refused, and each is
+accepted once — a captured signature cannot be replayed.
+
+Gated: `/pvp/available`, `/queue`, `/cancel`, `/challenge*`, `/state`, `/move`,
+`/forfeit`, `/profile`, `/cup/register`, `/cup/ready`, `/cup/chat`. `/pvp/state`
+is in that list because the response contains your hand. Reads that leak nothing
+(`/cup/status`, `/leaderboard`, `/stats`, `/pvp/spectate`) stay public.
+
+`REQUIRE_AUTH=false` disables enforcement. It exists to recover from a bad
+rollout — a cached old client that cannot sign in yet — and should not be left
+off, because it restores the impersonation hole.
+
+Admin routes are separate and stricter: they need a fresh signature *per call*,
+not a session token.
+
+## Glory, and why some of it is "verified"
+
+Glory earned against the AI ladder happens entirely in the browser, so the
+server cannot check it. Rather than trust or discard it, it is metered:
+
+- A wallet is **bootstrapped once** from whatever its save reports, so existing
+  players keep their progress.
+- After that, client-reported Glory may only climb at `CLIENT_GLORY_PER_HOUR`
+  (default 300, burst 600). A save claiming 999,999 gains a few hundred.
+- `gloryVerified` tracks only what the **server itself** awarded: PvP wins and
+  wager winnings. It moves with wager settlements in both directions.
+
+**Cup entry must be paid from `gloryVerified`** (`CUP_REQUIRE_VERIFIED_GLORY`,
+default on). This is the important one: the Cup pays real SOL, so without it a
+forged local save would convert straight into a payout. Turning it off is only
+safe while prizes are off.
+
+One consequence worth knowing: the server reports `glory: 0` for a wallet it has
+never seen. The client must **not** adopt that — it pushes its save up first and
+only pulls once `you.bootstrapped` is true. Getting this backwards wipes a
+returning player's Glory and then persists the wipe; there is a regression test
+for it.
+
+## Other notes
+
 - **Payouts are off unless you configure them.** Without `TREASURY_SECRET`,
   `/claim` returns 503 rather than pretending to pay. Only set it on a host you
   control, and keep `DAILY_CLAIM_CAP_SOL` low.
-- Glory the client reports is only ever allowed to *raise* the server's number,
-  and never while a wager is escrowed — a stale browser tab cannot wipe a stake.
+- A client-reported Glory figure is ignored entirely while a wager is escrowed,
+  or within 120s of any server-side settlement — a stale tab cannot undo a
+  wager it just lost.
 
 ## Storage
 

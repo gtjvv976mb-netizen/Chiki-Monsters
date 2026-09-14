@@ -2182,6 +2182,72 @@ try{
   else if(_qb){ CHAIN.BACKEND=_qb.replace(/\/+$/,""); localStorage.setItem("chikiBackend",CHAIN.BACKEND); }
   else { const _sb=localStorage.getItem("chikiBackend"); if(_sb)CHAIN.BACKEND=_sb; }
 }catch(e){}
+/* ===== WALLET SIGN-IN ===================================================
+   The backend will not move your Glory, play your cards or overwrite your save
+   on the strength of a wallet address alone — anyone could type one. You sign a
+   short timestamped message once with Phantom and get a session token, which is
+   attached to every backend call below. Cached per wallet, so it is one prompt
+   a week, not one per battle. ====================================================== */
+let _chikiAuth=null, _authPending=null, _authBlockedUntil=0;
+const _authKey=pk=>"chikiAuth:"+pk;
+const chikiAuthToken=()=>(_chikiAuth&&_chikiAuth.token)?_chikiAuth.token:null;
+function loadChikiAuth(pk){
+  if(_chikiAuth&&_chikiAuth.wallet===pk&&_chikiAuth.expires>Date.now()+60000)return _chikiAuth;
+  try{ const c=JSON.parse(localStorage.getItem(_authKey(pk))||"null");
+    if(c&&c.token&&c.wallet===pk&&c.expires>Date.now()+60000){ _chikiAuth=c; return c; } }catch(e){}
+  return null;
+}
+async function chikiSignIn(pk,force){
+  if(!CHAIN.BACKEND||!pk)return null;
+  if(!force){ const c=loadChikiAuth(pk); if(c)return c; }
+  if(_authPending)return _authPending;
+  if(Date.now()<_authBlockedUntil)return null;      /* they declined — don't nag every poll */
+  _authPending=(async()=>{
+    try{
+      const prov=(window.phantom&&window.phantom.solana)||window.solana;
+      if(!prov||!prov.signMessage)return null;
+      const msg="Chikoria sign-in\nwallet:"+pk+"\nts:"+Date.now()+"\nnonce:"+Math.random().toString(36).slice(2);
+      const r=await prov.signMessage(new TextEncoder().encode(msg),"utf8");
+      const raw=r.signature||r; let bin=""; for(let i=0;i<raw.length;i++)bin+=String.fromCharCode(raw[i]);
+      const res=await fetch(CHAIN.BACKEND+"/auth/login",{method:"POST",headers:{"content-type":"application/json"},
+        body:JSON.stringify({wallet:pk,msg,sig:btoa(bin)})});
+      const j=await res.json().catch(()=>null);
+      if(j&&j.token){
+        _chikiAuth={wallet:pk,token:j.token,expires:Date.now()+(j.expiresInMs||6*86400000)};
+        try{ localStorage.setItem(_authKey(pk),JSON.stringify(_chikiAuth)); }catch(e){}
+        return _chikiAuth;
+      }
+      _authBlockedUntil=Date.now()+60000;
+      return null;
+    }catch(e){ _authBlockedUntil=Date.now()+300000; return null; }   /* declined in the wallet */
+    finally{ _authPending=null; }
+  })();
+  return _authPending;
+}
+async function ensureChikiAuth(){
+  const pk=(typeof player!=="undefined"&&player&&player.pk)?player.pk:null;
+  if(!pk)return null;
+  return loadChikiAuth(pk)||await chikiSignIn(pk);
+}
+try{ window.chikiSignIn=chikiSignIn; window.ensureChikiAuth=ensureChikiAuth; window.chikiAuthToken=chikiAuthToken; }catch(e){}
+
+/* One wrapper so every existing backend call carries the token — there are
+   dozens of fetch sites across the arena, Cup and profile code. */
+(function(){
+  const orig=window.fetch.bind(window);
+  window.fetch=function(input,init){
+    try{
+      const url=(typeof input==="string")?input:((input&&input.url)||"");
+      const tok=chikiAuthToken();
+      if(tok&&CHAIN.BACKEND&&url.indexOf(CHAIN.BACKEND)===0){
+        init=Object.assign({},init||{});
+        init.headers=Object.assign({},init.headers||{},{Authorization:"Bearer "+tok});
+      }
+    }catch(e){}
+    return orig(input,init);
+  };
+})();
+
 window.CHAIN=CHAIN;   /* expose on window — top-level `const` doesn't attach to window, and the Meme Dex reads window.CHAIN */
 /* ===== Real on-chain $CHIKI spend (player signs in Phantom). Split in BASIS POINTS via the `split` arg;
    DEFAULT = 1% burn / 49.5% treasury(pool) / 49.5% team. Legendary Egg = 1%/40%/59% (EGG_SPLIT).
@@ -3513,8 +3579,12 @@ async function connectPhantom(){
     const res=await prov.connect();
     const pk=res.publicKey.toString();
     const short=pk.slice(0,4)+"…"+pk.slice(-4);
+    showBanner(`🔗 Connected <b>${short}</b> — approve the <b>sign-in signature</b> to secure your Glory…`,"info");
+    addFeed(`👻 Phantom connected: <b>${short}</b> — signing in…`);
+    /* Free signature, no transaction: it proves this wallet is yours so nobody
+       else can spend your Glory or play your cards. */
+    try{ await chikiSignIn(pk); }catch(e){}
     showBanner(`🔗 Connected <b>${short}</b> — checking your $CHIKI balance…`,"info");
-    addFeed(`👻 Phantom connected: <b>${short}</b> — checking balance…`);
     let bal,solBal=0,serverProfile=null,serverChikis=null,whaleMsg=null,whaleUnlockAt=0,backendConfirmed=false;
     if(CHAIN.BACKEND){
       const v=await backendVerify(pk);
@@ -4224,6 +4294,7 @@ setInterval(updateWhaleTab,1000);
     if(!lobbyActive()){ if(panel)panel.style.display="none"; return; }
     const snap=legendSnap();
     if(!snap){ if(panel)panel.style.display="none"; return; }
+    if(typeof ensureChikiAuth==="function"&&!chikiAuthToken()){ await ensureChikiAuth(); if(!lobbyActive())return; }
     const now=Date.now(); for(const k in _lobbyChallenged) if(now-_lobbyChallenged[k]>28000)delete _lobbyChallenged[k];
     try{
       const r=await fetch(CHAIN.BACKEND+"/pvp/available",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({wallet:player.pk,name:(player.handle||player.addr||"Trainer"),snap,searching:_pvpSearching,wager:_pvpWager})});
@@ -4232,7 +4303,14 @@ setInterval(updateWhaleTab,1000);
       if(j&&Array.isArray(j.tiers)&&j.tiers.length)PVP_WAGER_TIERS=j.tiers;
       if(j&&j.rakeBp!=null)PVP_RAKE_BP=j.rakeBp;
       _lobbyLast=j||{};
-      if(j&&j.you&&j.you.glory!=null&&player)player.glory=j.you.glory;   /* Glory is server-authoritative */
+      /* Glory is server-authoritative — but ONLY once the server has carried this
+         wallet's save in. Before that it reports 0, and adopting that would wipe
+         a returning player's Glory (and then persist the wipe on the next save).
+         So while it is unbootstrapped we push our save up instead of pulling. */
+      if(j&&j.you&&player){
+        if(j.you.bootstrapped){ if(j.you.glory!=null)player.glory=j.you.glory; }
+        else if(typeof saveProfile==="function"){ try{ saveProfile(player); }catch(e){} }
+      }
       renderHubHud(_lobbyLast);
       pvpLobbyRender(_lobbyLast);
     }catch(e){}

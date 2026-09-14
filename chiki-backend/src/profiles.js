@@ -14,11 +14,23 @@ const store = require('./store');
 
 const MIN_HOLD = 500000;
 
+/* Client-reported Glory (offline AI-ladder wins) can't be verified, so it is
+   metered rather than trusted: a wallet is bootstrapped once from whatever its
+   save says, and after that may only climb at a believable rate. `gloryVerified`
+   separately tracks Glory the SERVER awarded — PvP wins and wager winnings —
+   which is what gates anything that pays out real SOL. */
+const CLIENT_GLORY_PER_HOUR = Number(process.env.CLIENT_GLORY_PER_HOUR || 300);
+const CLIENT_GLORY_BURST = Number(process.env.CLIENT_GLORY_BURST || 600);
+
 function blank(wallet) {
   return {
     wallet,
     handle: null,
     glory: 0,
+    gloryVerified: 0,       /* the part the server itself awarded (PvP + wagers) */
+    gloryBootstrapped: false,
+    clientGloryBucket: CLIENT_GLORY_BURST,
+    clientGloryAt: Date.now(),
     escrow: 0,              /* Glory locked in live wagers */
     pvpWins: 0,
     pvpLosses: 0,
@@ -45,6 +57,9 @@ function get(wallet) {
   /* older records predate these fields */
   if (p.escrow == null) p.escrow = 0;
   if (p.glory == null) p.glory = 0;
+  if (p.gloryVerified == null) p.gloryVerified = 0;
+  if (p.clientGloryBucket == null) p.clientGloryBucket = CLIENT_GLORY_BURST;
+  if (p.clientGloryAt == null) p.clientGloryAt = Date.now();
   return p;
 }
 
@@ -62,6 +77,16 @@ const SETTLE_WINDOW_MS = 120000;
 function touchGlory(p) {
   if (p) p.gloryTouched = Date.now();
 }
+
+/* Move the verified balance with a server-side award or debit, kept inside
+   [0, glory] so it can never claim more than the wallet actually holds. */
+function addVerified(p, delta) {
+  if (!p) return;
+  p.gloryVerified = Math.max(0, Math.min(Math.round(p.glory || 0), Math.round((p.gloryVerified || 0) + delta)));
+}
+
+/* Glory this wallet can stake on something that pays real SOL. */
+const spendableVerified = p => Math.max(0, Math.min(spendable(p), Math.floor(p.gloryVerified || 0)));
 
 function addGlory(wallet, amount) {
   const p = get(wallet);
@@ -96,8 +121,8 @@ function settleWager(winnerWallet, loserWallet, stake, rakeBp) {
   release(winnerWallet, stake);
   release(loserWallet, stake);
   const w = get(winnerWallet), l = get(loserWallet);
-  if (w) { w.glory = Math.max(0, Math.round(w.glory + won)); w.wagerWon = (w.wagerWon || 0) + won; touchGlory(w); }
-  if (l) { l.glory = Math.max(0, Math.round(l.glory - stake)); l.wagerLost = (l.wagerLost || 0) + stake; touchGlory(l); }
+  if (w) { w.glory = Math.max(0, Math.round(w.glory + won)); w.wagerWon = (w.wagerWon || 0) + won; addVerified(w, won); touchGlory(w); }
+  if (l) { l.glory = Math.max(0, Math.round(l.glory - stake)); l.wagerLost = (l.wagerLost || 0) + stake; addVerified(l, -stake); touchGlory(l); }
   const db = store.data();
   db.totals.wagerRake = Math.round((db.totals.wagerRake || 0) + rake);
   store.save();
@@ -115,7 +140,7 @@ function recordResult(wallet, win, gloryDelta) {
     p.pvpLosses = (p.pvpLosses || 0) + 1;
     p.pvpStreak = 0;
   }
-  if (gloryDelta) p.glory = Math.max(0, Math.round((p.glory || 0) + gloryDelta));
+  if (gloryDelta) { p.glory = Math.max(0, Math.round((p.glory || 0) + gloryDelta)); addVerified(p, gloryDelta); }
   touchGlory(p);
   store.save();
 }
@@ -133,7 +158,20 @@ function syncFromClient(wallet, profile) {
   p.lastSeen = Date.now();
   const claimed = Math.max(0, Math.floor(Number(profile.glory) || 0));
   const settling = Date.now() - (p.gloryTouched || 0) < SETTLE_WINDOW_MS;
-  if (!p.escrow && !settling && claimed > (p.glory || 0)) p.glory = claimed;
+  if (!p.gloryBootstrapped) {
+    /* first time we've seen this wallet — carry their existing local progress in */
+    p.glory = claimed;
+    p.gloryBootstrapped = true;
+    p.clientGloryAt = Date.now();
+  } else if (!p.escrow && !settling && claimed > p.glory) {
+    /* refill the bucket for elapsed time, then grant only what it covers */
+    const now = Date.now();
+    const hours = Math.max(0, now - (p.clientGloryAt || now)) / 3600000;
+    p.clientGloryBucket = Math.min(CLIENT_GLORY_BURST, (p.clientGloryBucket || 0) + hours * CLIENT_GLORY_PER_HOUR);
+    p.clientGloryAt = now;
+    const gain = Math.min(claimed - p.glory, Math.floor(p.clientGloryBucket));
+    if (gain > 0) { p.glory += gain; p.clientGloryBucket -= gain; }
+  }
   store.save();
   return p;
 }
@@ -153,6 +191,7 @@ function pushFeed(ev) {
 const short = w => (w ? w.slice(0, 4) + '…' + w.slice(-4) : 'A holder');
 
 module.exports = {
-  MIN_HOLD, get, peek, spendable, addGlory, lock, release,
+  MIN_HOLD, CLIENT_GLORY_PER_HOUR, CLIENT_GLORY_BURST,
+  get, peek, spendable, spendableVerified, addVerified, addGlory, lock, release,
   settleWager, recordResult, syncFromClient, isBanned, pushFeed, short
 };

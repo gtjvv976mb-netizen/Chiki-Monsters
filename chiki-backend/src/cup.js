@@ -15,6 +15,11 @@ const profiles = require('./profiles');
 const store = require('./store');
 
 const ENTRY_GLORY = Number(process.env.CUP_ENTRY_GLORY || 100);
+/* The Cup pays real SOL, so entry must be bought with Glory the SERVER awarded
+   (PvP wins and wager winnings) — never with the unverifiable client-reported
+   kind. Set CUP_REQUIRE_VERIFIED_GLORY=false to accept any Glory, but only if
+   prizes are off: it reopens the path from a forged save to a real payout. */
+const REQUIRE_VERIFIED_GLORY = String(process.env.CUP_REQUIRE_VERIFIED_GLORY || 'true') !== 'false';
 const PRIZE_POOL_SOL = Number(process.env.CUP_PRIZE_SOL || 4);
 const CHAT_MAX = 200;
 const AUTO_START_ROUND_MS = 4000;   /* auto-run: pause between finalize and the next round */
@@ -219,8 +224,16 @@ function register(wallet, snap) {
   const sn = engine.normalizeSnap(snap);
   const p = profiles.get(wallet);
   const cost = c.entryGlory || 0;
-  if (profiles.spendable(p) < cost) return { error: 'need ' + cost + ' Glory to enter (you have ' + profiles.spendable(p) + ')' };
-  if (cost) profiles.addGlory(wallet, -cost);
+  if (REQUIRE_VERIFIED_GLORY) {
+    const earned = profiles.spendableVerified(p);
+    if (earned < cost) {
+      return { error: 'Cup entry costs ' + cost + ' Glory won in battle — you have ' + earned +
+        ' battle-earned of ' + profiles.spendable(p) + ' total. Win PvP matches to qualify.' };
+    }
+  } else if (profiles.spendable(p) < cost) {
+    return { error: 'need ' + cost + ' Glory to enter (you have ' + profiles.spendable(p) + ')' };
+  }
+  if (cost) { profiles.addGlory(wallet, -cost); profiles.addVerified(p, -cost); }
 
   c.entrants.push({
     wallet,
@@ -600,7 +613,7 @@ function tick() {
 }
 
 module.exports = {
-  ENTRY_GLORY, PRIZE_POOL_SOL, RNAME, isAdmin,
+  ENTRY_GLORY, PRIZE_POOL_SOL, REQUIRE_VERIFIED_GLORY, RNAME, isAdmin,
   create, resize, register, fill, start, startRound, finalizeRound, resolveRound,
   status, setPublic, setAuto, ready, getChat, sendChat, tick
 };

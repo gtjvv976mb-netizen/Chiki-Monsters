@@ -335,6 +335,10 @@ function lobbyView(wallet) {
     challenges: mine,
     you: {
       glory: p ? p.glory : 0,
+      /* false until this wallet's save has been carried in; the client must NOT
+         adopt a server Glory of 0 before then or it would wipe local progress */
+      bootstrapped: !!(p && p.gloryBootstrapped),
+      verified: p ? Math.round(p.gloryVerified || 0) : 0,
       spendable: p ? profiles.spendable(p) : 0,
       escrow: p ? p.escrow : 0,
       wager: me ? me.wager || 0 : 0,

@@ -14,6 +14,7 @@ const store = require('./src/store');
 const profiles = require('./src/profiles');
 const pvp = require('./src/pvp');
 const cup = require('./src/cup');
+const auth = require('./src/auth');
 const engine = require('./src/engine');
 
 const app = express();
@@ -53,6 +54,25 @@ const ha = fn => async (req, res) => {
     if (!res.headersSent) res.status(500).json({ error: 'server error' });
   }
 };
+
+/* Wrap a handler so it only runs once the caller has proven the wallet it
+   claims. `pick` pulls the claimed wallet out of the request. */
+const guard = (pick, fn) => (req, res) => {
+  const bad = auth.requireWallet(req, pick(req));
+  if (bad) return res.status(bad.status || 403).json({ error: bad.error });
+  return h(fn)(req, res);
+};
+const bodyWallet = req => (req.body || {}).wallet;
+const queryWallet = req => req.query.wallet;
+
+/* -------------------------------------------------------------------- auth */
+
+app.post('/auth/login', h(req => {
+  const { wallet, msg, sig } = req.body || {};
+  return auth.login(wallet, msg, sig);
+}));
+app.post('/auth/logout', h(req => auth.logout(req)));
+app.get('/auth/me', h(req => ({ wallet: auth.walletOf(req), required: auth.REQUIRE_AUTH, prefix: auth.LOGIN_PREFIX })));
 
 /* ------------------------------------------------------------------ health */
 
@@ -101,11 +121,10 @@ app.post('/presence', h(req => {
 
 /* ---------------------------------------------------------------- profiles */
 
-app.post('/profile', h(req => {
+app.post('/profile', guard(bodyWallet, req => {
   const { wallet, profile } = req.body || {};
-  if (!wallet) return { error: 'wallet required' };
   const p = profiles.syncFromClient(wallet, profile);
-  return { ok: true, glory: p.glory, escrow: p.escrow };
+  return { ok: true, glory: p.glory, gloryVerified: p.gloryVerified, escrow: p.escrow };
 }));
 
 app.post('/verify', ha(async req => {
@@ -161,6 +180,7 @@ app.get('/claimable', h(req => {
     minHold: MIN_HOLD,
     banned: profiles.isBanned(wallet),
     glory: Math.round(p.glory || 0),
+    gloryVerified: Math.round(p.gloryVerified || 0),
     gloryEscrow: Math.round(p.escrow || 0)
   };
 }));
@@ -281,16 +301,17 @@ app.get('/allchikis', h(req => {
 
 /* -------------------------------------------------------------------- PvP */
 
-app.post('/pvp/available', h(req => pvp.available(req.body || {})));
-app.post('/pvp/queue', h(req => pvp.queue(req.body || {})));
+app.post('/pvp/available', guard(bodyWallet, req => pvp.available(req.body || {})));
+app.post('/pvp/queue', guard(bodyWallet, req => pvp.queue(req.body || {})));
 app.get('/pvp/queue', h(req => pvp.queue({ wallet: req.query.wallet })));
-app.post('/pvp/cancel', h(req => pvp.cancel(req.body || {})));
-app.post('/pvp/challenge', h(req => pvp.challenge(req.body || {})));
-app.post('/pvp/challenge/accept', h(req => pvp.acceptChallenge(req.body || {})));
-app.post('/pvp/challenge/decline', h(req => pvp.declineChallenge(req.body || {})));
-app.get('/pvp/state', h(req => pvp.state(req.query.matchId, req.query.wallet)));
-app.post('/pvp/move', h(req => pvp.move(req.body || {})));
-app.post('/pvp/forfeit', h(req => pvp.forfeit(req.body || {})));
+app.post('/pvp/cancel', guard(bodyWallet, req => pvp.cancel(req.body || {})));
+app.post('/pvp/challenge', guard(req => (req.body || {}).from, req => pvp.challenge(req.body || {})));
+app.post('/pvp/challenge/accept', guard(bodyWallet, req => pvp.acceptChallenge(req.body || {})));
+app.post('/pvp/challenge/decline', guard(bodyWallet, req => pvp.declineChallenge(req.body || {})));
+/* your hand is in this response, so it is gated like a write */
+app.get('/pvp/state', guard(queryWallet, req => pvp.state(req.query.matchId, req.query.wallet)));
+app.post('/pvp/move', guard(bodyWallet, req => pvp.move(req.body || {})));
+app.post('/pvp/forfeit', guard(bodyWallet, req => pvp.forfeit(req.body || {})));
 app.get('/pvp/spectate', h(req => pvp.spectate(req.query.matchId)));
 app.get('/pvp/live', h(() => ({ matches: pvp.liveMatches() })));
 app.get('/pvp/wagers', h(() => ({ tiers: pvp.WAGER_TIERS, rakeBp: pvp.WAGER_RAKE_BP })));
@@ -300,8 +321,8 @@ app.get('/pvp/wagers', h(() => ({ tiers: pvp.WAGER_TIERS, rakeBp: pvp.WAGER_RAKE
 app.get('/cup/status', h(req => cup.status(req.query.wallet)));
 app.post('/cup/create', h(req => cup.create(req.body.wallet, req.body.cap)));
 app.post('/cup/resize', h(req => cup.resize(req.body.wallet, req.body.cap)));
-app.post('/cup/register', h(req => cup.register(req.body.wallet, req.body.snap)));
-app.post('/cup/ready', h(req => cup.ready(req.body.wallet)));
+app.post('/cup/register', guard(bodyWallet, req => cup.register(req.body.wallet, req.body.snap)));
+app.post('/cup/ready', guard(bodyWallet, req => cup.ready(req.body.wallet)));
 app.post('/cup/fill', h(req => cup.fill(req.body.wallet)));
 app.post('/cup/start', h(req => cup.start(req.body.wallet)));
 app.post('/cup/public', h(req => cup.setPublic(req.body.wallet, req.body.public)));
@@ -310,7 +331,7 @@ app.post('/cup/start-round', h(req => cup.startRound(req.body.wallet)));
 app.post('/cup/finalize-round', h(req => cup.finalizeRound(req.body.wallet)));
 app.post('/cup/resolve-round', h(req => cup.resolveRound(req.body.wallet)));
 app.get('/cup/chat', h(req => cup.getChat(req.query.since)));
-app.post('/cup/chat', h(req => cup.sendChat(req.body.wallet, req.body.name, req.body.text)));
+app.post('/cup/chat', guard(bodyWallet, req => cup.sendChat(req.body.wallet, req.body.name, req.body.text)));
 
 /* ------------------------------------------------------------------ admin */
 
@@ -318,23 +339,8 @@ app.post('/cup/chat', h(req => cup.sendChat(req.body.wallet, req.body.name, req.
    the client signs "Chikoria admin sign-in\nwallet:<pk>\nts:<ms>". */
 function verifyAdmin(body) {
   const { adminWallet, authMsg, authSig } = body || {};
-  if (!adminWallet || !authMsg || !authSig) return 'signature required';
   if (!cup.isAdmin(adminWallet)) return 'not an admin wallet';
-  if (!authMsg.includes('wallet:' + adminWallet)) return 'signature does not match wallet';
-  const m = /ts:(\d+)/.exec(authMsg);
-  if (!m || Math.abs(Date.now() - Number(m[1])) > 5 * 60000) return 'signature expired';
-  try {
-    const nacl = require('tweetnacl');
-    const bs58 = require('bs58');
-    const ok = nacl.sign.detached.verify(
-      new TextEncoder().encode(authMsg),
-      Buffer.from(authSig, 'base64'),
-      bs58.decode(adminWallet)
-    );
-    return ok ? null : 'bad signature';
-  } catch (err) {
-    return 'signature check unavailable';
-  }
+  return auth.verifySigned(adminWallet, authMsg, authSig);
 }
 
 app.get('/admin/banned', h(req => {
@@ -387,6 +393,7 @@ app.use((req, res) => res.status(404).json({ error: 'unknown endpoint: ' + req.p
 /* ------------------------------------------------------------------- boot */
 
 pvp.recoverEscrow();
+setInterval(() => { try { auth.sweep(); } catch (e) {} }, 60000);
 setInterval(() => { try { pvp.tick(); } catch (e) { console.error('[pvp tick]', e); } }, 500);
 setInterval(() => { try { cup.tick(); } catch (e) { console.error('[cup tick]', e); } }, 2000);
 
@@ -395,6 +402,8 @@ if (require.main === module) {
     console.log('Chikoria backend listening on :' + PORT);
     console.log('  mint      ' + MINT);
     console.log('  payouts   ' + (process.env.TREASURY_SECRET ? 'ENABLED' : 'disabled (set TREASURY_SECRET)'));
+    console.log('  auth      ' + (auth.REQUIRE_AUTH ? 'REQUIRED (wallet signature)' : 'NOT ENFORCED (REQUIRE_AUTH=false)'));
+    console.log('  cup entry ' + (cup.REQUIRE_VERIFIED_GLORY ? 'battle-earned Glory only' : 'any Glory (CUP_REQUIRE_VERIFIED_GLORY=false)'));
     console.log('  data      ' + store.FILE);
   });
 }
