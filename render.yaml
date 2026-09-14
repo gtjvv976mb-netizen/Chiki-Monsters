@@ -1,3 +1,7 @@
+# Render Blueprint. This file MUST live at the repository ROOT — Render only
+# looks for render.yaml here, so moving it into chiki-backend/ makes the
+# Blueprint find no services at all. `rootDir` below is what points Render
+# at the backend folder.
 services:
   - type: web
     name: chikoria-backend
