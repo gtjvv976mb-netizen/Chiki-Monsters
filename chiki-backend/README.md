@@ -111,4 +111,6 @@ flushed on `SIGTERM`/`SIGINT`. Profiles, Glory, bans, feed and Cup results persi
 in-flight matches deliberately do not. Mount a disk at `DATA_DIR` in production —
 on an ephemeral filesystem, Glory resets on every redeploy.
 
-Deploy configs for Render (`render.yaml`) and Docker (`Dockerfile`) are included.
+Deploy configs are included: **`render.yaml` at the repository root** (Render only
+reads a Blueprint from the repo root — it points back here via `rootDir`), and a
+`Dockerfile` in this folder for anything else.
